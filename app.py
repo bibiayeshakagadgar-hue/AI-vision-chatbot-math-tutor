@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 from google import genai
 from google.genai import types
@@ -20,23 +21,19 @@ if "history" not in st.session_state:
 if "chat_messages" not in st.session_state:
     st.session_state.chat_messages = []
 
-api_key = st.secrets.get("GEMINI_API_KEY")
+# Check Render Environment Variables first, fallback to Streamlit secrets locally
+api_key = os.environ.get("GEMINI_API_KEY")
 if not api_key:
-    st.error("Missing GEMINI_API_KEY in .streamlit/secrets.toml file.")
+    try:
+        api_key = st.secrets.get("GEMINI_API_KEY")
+    except Exception:
+        api_key = None
+
+if not api_key:
+    st.error("Missing GEMINI_API_KEY. Please set it in Render Environment Variables or .streamlit/secrets.toml file.")
     st.stop()
 
 client = genai.Client(api_key=api_key)
-
-SYSTEM_INSTRUCTION = """
-You are a Socratic Math Tutor.
-- Transcribe handwritten math/physics from the image into valid LaTeX (enclosed in $ or $$).
-- Identify where the user made a mistake in their steps, if any.
-- Give a helpful hint or ask a guiding question about the FIRST incorrect step.
-- NEVER reveal the final answer outright unless explicitly requested.
-"""
-
-# Speed-optimized model sequence
-FAST_MODELS = ['gemini-3.5-flash-lite', 'gemini-3.7-flash', 'gemini-3.8-flash']
 
 # ---------------------------------------------------------
 # 2. Reset App Control
