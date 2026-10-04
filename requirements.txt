@@ -1,0 +1,5 @@
+streamlit
+google-genai
+Pillow
+streamlit-cropper
+pypdf
