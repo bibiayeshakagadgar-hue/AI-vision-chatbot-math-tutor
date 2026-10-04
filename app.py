@@ -13,7 +13,7 @@ st.set_page_config(page_title="Vision Math Tutor", page_icon="📐", layout="wid
 st.title("📐 AI Vision Math & Homework Tutor")
 
 # ---------------------------------------------------------
-# 1. Initialize State & Client
+# 1. Initialize State, Client & Model List
 # ---------------------------------------------------------
 if "history" not in st.session_state:
     st.session_state.history = []
@@ -34,6 +34,17 @@ if not api_key:
     st.stop()
 
 client = genai.Client(api_key=api_key)
+
+SYSTEM_INSTRUCTION = """
+You are a Socratic Math Tutor.
+- Transcribe handwritten math/physics from the image into valid LaTeX (enclosed in $ or $$).
+- Identify where the user made a mistake in their steps, if any.
+- Give a helpful hint or ask a guiding question about the FIRST incorrect step.
+- NEVER reveal the final answer outright unless explicitly requested.
+"""
+
+# Defined globally here so all sections can access it
+FAST_MODELS = ['gemini-3.5-flash-lite', 'gemini-3.7-flash', 'gemini-3.8-flash']
 
 # ---------------------------------------------------------
 # 2. Reset App Control
